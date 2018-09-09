@@ -1,5 +1,6 @@
 # MQTT boiler controller
 
+!!!Project is not ready yet. It is under active development!!!
 Purpose of this device is to replace stock hardware (thermostat and switch actually) in typical water heater.
 
 ## Parts:
