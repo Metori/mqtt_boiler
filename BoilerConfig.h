@@ -4,7 +4,6 @@
 #include "EEPROM.h"
 
 typedef enum {
-  POWER_OFF,
   POWER_LOW,
   POWER_MEDIUM,
   POWER_HIGH

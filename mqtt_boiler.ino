@@ -48,7 +48,7 @@ void setupDisplay() {
   gDisp.begin(SSD1306_SWITCHCAPVCC);
   gDisp.clearDisplay();
 
-  curScreenPtr = new CMainScreen();
+  curScreenPtr = new CCurrentTempScreen();
 }
 
 void updateDisplay() {

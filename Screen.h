@@ -12,7 +12,7 @@
 
 extern Adafruit_SSD1306 gDisp;
 
-void printCentered(char* str, uint16_t x, uint16_t y);
+void printCentered(const char* str, uint16_t x, uint16_t y);
 
 class CScreen {
 public:
@@ -64,6 +64,32 @@ private:
   int8 mNumber;
   int8 mMin;
   int8 mMax;
+};
+
+class COptionChooseScreen : public CScreen {
+public:
+  COptionChooseScreen(std::vector<std::string> textOptions, uint8_t initial)
+    : mTextOptions(textOptions),
+      mSelected(initial) {
+
+  }
+  virtual ~COptionChooseScreen() override {
+
+  }
+
+  virtual CScreen* transition() = 0;
+  virtual void draw() override;
+
+  uint8_t getSelected() {
+    return mSelected;
+  }
+
+private:
+  void inc();
+  void dec();
+
+  std::vector<std::string> mTextOptions;
+  uint8_t mSelected;
 };
 
 class CConfirmScreen : public CScreen {
@@ -131,6 +157,19 @@ public:
   }
   virtual ~CTargetTempSelectScreen() override {
     
+  }
+
+  virtual CScreen* transition() override;
+};
+
+class CPowerModeSelectScreen : public COptionChooseScreen {
+public:
+  CPowerModeSelectScreen(uint8_t initial)
+    : COptionChooseScreen({"LO", "ME", "HI"}, initial) {
+
+  }
+  virtual ~CPowerModeSelectScreen() override {
+
   }
 
   virtual CScreen* transition() override;

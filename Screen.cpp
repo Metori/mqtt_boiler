@@ -4,10 +4,8 @@
 #include "res/Bitmaps.h"
 #include "res/Strings.h"
 
-void printCentered(char* str, uint16_t x, uint16_t y) {
-  int16_t x1, x2;
-  uint16_t w, h;
-  gDisp.getTextBounds(str, 0, 0, &x1, &x2, &w, &h);
+void printCentered(const char* str, uint16_t x, uint16_t y) {
+  int16_t w = strlen(str) * 6;
   gDisp.setCursor(x - w / 2, y);
   gDisp.print(str);
 }
@@ -49,7 +47,7 @@ CScreen* CMainScreen::transition() {
           ret = new CTargetTempSelectScreen();
           break;
         case 2:
-          //TODO
+          ret = new CPowerModeSelectScreen((uint8_t)gBoilerConfig.getPowerMode());
           break;
         default:
           //TODO
@@ -168,8 +166,7 @@ void CNumberSelectScreen::draw() {
   gDisp.setCursor(0,0);
   gDisp.print(mNumber);
   gDisp.setTextSize(1);
-  gDisp.setCursor(20, 56);
-  gDisp.print(mText.c_str());
+  printCentered(mText.c_str(), 64, 57);
   gDisp.display();
 }
 
@@ -215,3 +212,56 @@ void CConfirmScreen::draw() {
   gDisp.drawBitmap(40, 4, BITMAP_CONFIRM, 48, 48, WHITE);
   gDisp.display();
 }
+
+// ***** OPTION CHOOSE SCREEN *****
+void COptionChooseScreen::draw() {
+  switch (gControls.getEvent()) {
+    case EControlEvent::POT_STEP_CW:
+      inc();
+      break;
+    case EControlEvent::POT_STEP_CCW:
+      dec();
+      break;
+    default:
+      break;
+  }
+
+  gDisp.clearDisplay();
+  gDisp.setTextSize(2);
+
+  gDisp.setCursor(0, 25);
+  for (int i = 0; i < mTextOptions.size(); i++) {
+    if (i == mSelected) gDisp.setTextColor(BLACK, WHITE);
+    else gDisp.setTextColor(WHITE);
+
+    gDisp.print(mTextOptions[i].c_str());
+    gDisp.print(" ");
+  }
+
+  gDisp.display();
+}
+
+void COptionChooseScreen::inc() {
+  if (++mSelected >= mTextOptions.size()) mSelected = 0;
+}
+
+void COptionChooseScreen::dec() {
+  if (mSelected-- == 0) mSelected = mTextOptions.size() - 1;
+}
+
+// ***** POWER MODE SELECT SCREEN *****
+CScreen* CPowerModeSelectScreen::transition() {
+  CScreen* oldThis = this;
+  CScreen* ret = CScreen::transition();
+  if (ret == oldThis) {
+    if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
+      EPowerMode mode = (EPowerMode)getSelected();
+      gBoilerConfig.setPowerMode(mode);
+      delete this;
+      ret = new CConfirmScreen(2);
+    }
+  }
+
+  return ret;
+}
+
