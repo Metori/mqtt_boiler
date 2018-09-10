@@ -1,7 +1,8 @@
 #include "Temperature.h"
 #include "Screen.h"
-#include "res/Bitmaps.h"
 #include "Controls.h"
+#include "res/Bitmaps.h"
+#include "res/Strings.h"
 
 CScreen* CScreen::transition() {
   CScreen* ret;
@@ -65,25 +66,28 @@ void CMainScreen::draw() {
   }
 
   const unsigned char* bitmapPtr;
-  const char* text;
+  const char* pgmStr;
   switch (mSelectedItem) {
     case 0:
       bitmapPtr = BITMAP_WATER_TEMP;
-      text = "CURRENT TEMP";
+      pgmStr = STR_CURRENT_TEMP;
       break;
     case 1:
       bitmapPtr = BITMAP_TARGET_TEMP;
-      text = "SET TARGET TEMP";
+      pgmStr = STR_SET_TARGET_TEMP;
       break;
     case 2:
       bitmapPtr = BITMAP_POWER_MODE;
-      text = "SELECT POWER MODE";
+      pgmStr = STR_SELECT_POWER_MODE;
       break;
     default:
       bitmapPtr = BITMAP_MORE;
-      text = "MORE OPTIONS";
+      pgmStr = STR_MORE_OPTIONS;
       break;
   }
+
+  char buffer[30];
+  strcpy_P(buffer, pgmStr);
   
   gDisp.clearDisplay();
 
@@ -96,7 +100,7 @@ void CMainScreen::draw() {
   gDisp.setTextColor(WHITE);
   gDisp.setTextSize(1);
   gDisp.setCursor(20, 56);
-  gDisp.print(text);
+  gDisp.print(buffer);
 
   //Debug info
   gDisp.setCursor(0,0);
