@@ -4,6 +4,14 @@
 #include "res/Bitmaps.h"
 #include "res/Strings.h"
 
+void printCentered(char* str, uint16_t x, uint16_t y) {
+  int16_t x1, x2;
+  uint16_t w, h;
+  gDisp.getTextBounds(str, 0, 0, &x1, &x2, &w, &h);
+  gDisp.setCursor(x - w / 2, y);
+  gDisp.print(str);
+}
+
 CScreen* CScreen::transition() {
   CScreen* ret;
 
@@ -99,8 +107,7 @@ void CMainScreen::draw() {
   
   gDisp.setTextColor(WHITE);
   gDisp.setTextSize(1);
-  gDisp.setCursor(20, 56);
-  gDisp.print(buffer);
+  printCentered(buffer, 64, 57);
 
   //Debug info
   gDisp.setCursor(0,0);

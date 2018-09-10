@@ -12,6 +12,8 @@
 
 extern Adafruit_SSD1306 gDisp;
 
+void printCentered(char* str, uint16_t x, uint16_t y);
+
 class CScreen {
 public:
   CScreen(bool timeoutEnabled = true)
