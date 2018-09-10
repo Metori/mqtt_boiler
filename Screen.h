@@ -5,7 +5,6 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "Global.h"
 #include "BoilerConfig.h"
 
 #define CONFIRM_SCREEN_TIMEOUT_MS 1000

@@ -1,10 +1,8 @@
-#include <OneWire.h>
-#include <DallasTemperature.h>
-#include <cmath>
-#include "Global.h"
 #include "BoilerConfig.h"
+#include "Temperature.h"
 #include "Screen.h"
 #include "Controls.h"
+#include <cmath>
 
 /* HW history
  *  0.1 - Initial HW for testing
@@ -13,11 +11,12 @@
 /* SW history
  *  0.1 - Initial code. Can only measure temperature
  *  0.2 - Controls, Screens, BoilerConfig added. Development is in progress
+ *  0.3 - Temperature element added. Code style fixes. Development is in progress
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
 #define DEVICE_HW_VERSION "0.1"
-#define DEVICE_SW_VERSION "0.2"
+#define DEVICE_SW_VERSION "0.3"
 
 // ***** CONFIG *****
 // Hardware configuration
@@ -40,39 +39,10 @@ CControls gControls(PIN_POT_CLK,
                     POT_DEBOUNCE_MS,
                     POT_SW_DEBOUNCE_MS);
 
-OneWire oneWire(PIN_THERMOMETER);
-DallasTemperature sensors(&oneWire);
-DeviceAddress dsAddr;
-
 Adafruit_SSD1306 gDisp(PIN_OLED_DC, -1, PIN_OLED_CS);
 CScreen* curScreenPtr = nullptr;
-
-float gTemperature;
-unsigned long lastTempUpdateTime = 0;
-
+CTemperature gTemperature(PIN_THERMOMETER, TEMP_UPDATE_INTERVAL_MS);
 CBoilerConfig gBoilerConfig;
-
-void updateTemperature() {
-  Serial.print("Requesting temperature... ");
-  sensors.requestTemperatures();
-  Serial.println("DONE");
-
-  gTemperature = sensors.getTempC(dsAddr);
-  
-  Serial.print("Temperature is: ");
-  Serial.println(gTemperature);
-}
-
-void updateDisplay() {
-  curScreenPtr = curScreenPtr->transition();
-  curScreenPtr->draw();
-}
-
-void setupDs() {
-  sensors.begin();
-  sensors.getAddress(dsAddr, 0);
-  sensors.setResolution(dsAddr, 9);
-}
 
 void setupDisplay() {
   gDisp.begin(SSD1306_SWITCHCAPVCC);
@@ -81,8 +51,12 @@ void setupDisplay() {
   curScreenPtr = new CMainScreen();
 }
 
+void updateDisplay() {
+  curScreenPtr = curScreenPtr->transition();
+  curScreenPtr->draw();
+}
+
 void setup(void) {
-  setupDs();
   setupDisplay();
 
   Serial.begin(9600);
@@ -90,11 +64,7 @@ void setup(void) {
 }
 
 void loop(void) {
-  unsigned long t = millis();
-  if (t - lastTempUpdateTime > TEMP_UPDATE_INTERVAL_MS) {
-    updateTemperature();
-    lastTempUpdateTime = t;
-  }
+  gTemperature.update();
   updateDisplay();
 }
 

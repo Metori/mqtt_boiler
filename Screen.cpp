@@ -1,6 +1,6 @@
+#include "Temperature.h"
 #include "Screen.h"
 #include "bitmaps/Bitmaps.h"
-#include "Global.h"
 #include "Controls.h"
 
 CScreen* CScreen::transition() {
@@ -128,7 +128,7 @@ CScreen* CCurrentTempScreen::transition() {
 }
 
 void CCurrentTempScreen::draw() {
-  int8 rounded = (int8)round(gTemperature);
+  int8 rounded = (int8)round(gTemperature.getValue());
 
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
