@@ -1,6 +1,6 @@
 #include "Temperature.h"
 #include "Screen.h"
-#include "bitmaps/Bitmaps.h"
+#include "res/Bitmaps.h"
 #include "Controls.h"
 
 CScreen* CScreen::transition() {
