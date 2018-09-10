@@ -1,5 +1,5 @@
-#ifndef BITMAPS_H
-#define BITMAPS_H
+#ifndef _BITMAPS_H
+#define _BITMAPS_H
 
 #include "WaterTemp.h"
 #include "TargetTemp.h"
@@ -7,4 +7,4 @@
 #include "More.h"
 #include "Confirm.h"
 
-#endif
+#endif // _BITMAPS_H

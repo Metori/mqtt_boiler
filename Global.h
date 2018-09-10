@@ -1,6 +1,6 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef _GLOBAL_H
+#define _GLOBAL_H
 
 extern float gTemperature;
 
-#endif
+#endif // _GLOBAL_H

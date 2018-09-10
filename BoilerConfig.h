@@ -1,5 +1,5 @@
-#ifndef BOILER_CONFIG_H
-#define BOILER_CONFIG_H
+#ifndef _BOILER_CONFIG_H
+#define _BOILER_CONFIG_H
 
 #include "EEPROM.h"
 
@@ -47,4 +47,4 @@ private:
 
 extern CBoilerConfig gBoilerConfig;
 
-#endif // BOILER_CONFIG_H
+#endif // _BOILER_CONFIG_H
