@@ -15,6 +15,13 @@ extern Adafruit_SSD1306 gDisp;
 void printCentered(const char* str, uint16_t x, uint16_t y, uint8_t textSize = 1);
 void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y, uint8_t textSize = 1);
 
+typedef enum {
+  ERR_UNKNOWN,
+  ERR_TEMP_SENSOR,
+  ERR_TEMP_TOO_LOW,
+  ERR_TEMP_TOO_HIGH
+} EError;
+
 class CScreen {
 public:
   CScreen(bool timeoutEnabled = true)
@@ -87,6 +94,23 @@ private:
 
   std::vector<std::string> mTextOptions;
   uint8_t mSelected;
+};
+
+class CErrorScreen : public CScreen {
+public:
+  CErrorScreen(EError error)
+    : CScreen(false),
+      mError(error) {
+
+  }
+  virtual ~CErrorScreen() override {
+
+  }
+
+  virtual void draw() override;
+
+private:
+  EError mError;
 };
 
 class CConfirmScreen : public CScreen {

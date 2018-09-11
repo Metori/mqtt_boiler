@@ -164,7 +164,7 @@ void CNumberSelectScreen::draw() {
       break;
   }
 
-  char buffer[2];
+  char buffer[3];
   itoa(mNumber, buffer, 10);
   
   gDisp.clearDisplay();
@@ -282,3 +282,17 @@ CScreen* CPowerModeSelectScreen::transition() {
   return ret;
 }
 
+// ***** ERROR SCREEN *****
+void CErrorScreen::draw() {
+  gDisp.clearDisplay();
+  gDisp.setTextColor(WHITE);
+
+  char errCaption[4];
+  strcpy_P(errCaption, STR_ERROR);
+  itoa((int)mError, errCaption + 1, 10);
+
+  printCentered(errCaption, 63, 5, 2);
+  printCentered(FPSTR(STR_ARR_ERRORS[(int)mError]), 63, 22);
+
+  gDisp.display();
+}

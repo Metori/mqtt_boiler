@@ -31,6 +31,8 @@
 #define POT_SW_DEBOUNCE_MS 25
 
 #define TEMP_UPDATE_INTERVAL_MS 5000
+#define TEMP_VALID_MIN 0
+#define TEMP_VALID_MAX 90
 // ***** END OF CONFIG *****
 
 CControls gControls(PIN_POT_CLK,
@@ -47,8 +49,6 @@ CBoilerConfig gBoilerConfig;
 void setupDisplay() {
   gDisp.begin(SSD1306_SWITCHCAPVCC);
   gDisp.clearDisplay();
-
-  curScreenPtr = new CCurrentTempScreen();
 }
 
 void updateDisplay() {
@@ -56,15 +56,35 @@ void updateDisplay() {
   curScreenPtr->draw();
 }
 
-void setup(void) {
-  setupDisplay();
+void halt() {
+  while(1);
+}
 
+void setup(void) {
   Serial.begin(9600);
   Serial.println(DEVICE_NAME " HW Ver. " DEVICE_HW_VERSION " SW Ver. " DEVICE_SW_VERSION);
+
+  setupDisplay();
+
+  if (gTemperature.init()) curScreenPtr = new CCurrentTempScreen();
+  else {
+    curScreenPtr = new CErrorScreen(EError::ERR_TEMP_SENSOR);
+    halt();
+  }
 }
 
 void loop(void) {
-  gTemperature.update();
+  float t = gTemperature.update();
+  if (t < TEMP_VALID_MIN) {
+    delete curScreenPtr;
+    curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_LOW);
+    halt();
+  }
+  else if (t > TEMP_VALID_MAX) {
+    delete curScreenPtr;
+    curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_HIGH);
+    halt();
+  }
   updateDisplay();
 }
 

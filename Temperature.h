@@ -10,16 +10,24 @@ public:
     : mOneWire(pin),
       mSensors(&mOneWire),
       mUpdateInterval(interval) {
-    mSensors.begin();
-    mSensors.getAddress(mSensorAddr, 0);
-    mSensors.setResolution(mSensorAddr, 9);
 
-    mSensors.requestTemperatures();
-    mTemperatureValue = mSensors.getTempC(mSensorAddr);
-    mLastTempUpdateTime = millis();
   }
   ~CTemperature() {
 
+  }
+
+  bool init() {
+    mSensors.begin();
+    bool res = mSensors.getAddress(mSensorAddr, 0);
+    if (res) {
+      mSensors.setResolution(mSensorAddr, 9);
+
+      mSensors.requestTemperatures();
+      mTemperatureValue = mSensors.getTempC(mSensorAddr);
+      mLastTempUpdateTime = millis();
+    }
+
+    return res;
   }
 
   float update() {
