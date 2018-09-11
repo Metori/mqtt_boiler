@@ -12,7 +12,7 @@
 
 extern Adafruit_SSD1306 gDisp;
 
-void printCentered(const char* str, uint16_t x, uint16_t y);
+void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y);
 
 class CScreen {
 public:
@@ -34,15 +34,11 @@ private:
 
 class CNumberSelectScreen : public CScreen {
 public:
-  CNumberSelectScreen(std::string text, int8 initial, int8 min, int8 max)
-    : mText(text),
+  CNumberSelectScreen(const __FlashStringHelper* pgmText, int8 initial, int8 min, int8 max)
+    : mText(pgmText),
       mNumber(initial),
       mMin(min),
       mMax(max) {
-    
-  }
-  CNumberSelectScreen()
-    : CNumberSelectScreen("", 0, 0, 0) {
     
   }
   virtual ~CNumberSelectScreen() override {
@@ -60,7 +56,7 @@ private:
   void inc();
   void dec();
 
-  std::string mText;
+  const __FlashStringHelper* mText;
   int8 mNumber;
   int8 mMin;
   int8 mMax;
@@ -151,10 +147,7 @@ public:
 
 class CTargetTempSelectScreen : public CNumberSelectScreen {
 public:
-  CTargetTempSelectScreen()
-    : CNumberSelectScreen("SELECT TEMP", gBoilerConfig.getTargetTemp(), 30, 90) {
-    
-  }
+  CTargetTempSelectScreen();
   virtual ~CTargetTempSelectScreen() override {
     
   }

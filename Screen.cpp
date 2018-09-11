@@ -4,8 +4,8 @@
 #include "res/Bitmaps.h"
 #include "res/Strings.h"
 
-void printCentered(const char* str, uint16_t x, uint16_t y) {
-  int16_t w = strlen(str) * 6;
+void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y) {
+  int16_t w = strlen_P((const char*)str) * 6;
   gDisp.setCursor(x - w / 2, y);
   gDisp.print(str);
 }
@@ -92,9 +92,6 @@ void CMainScreen::draw() {
       break;
   }
 
-  char buffer[30];
-  strcpy_P(buffer, pgmStr);
-  
   gDisp.clearDisplay();
 
   gDisp.drawBitmap(40, 4, bitmapPtr, 48, 48, WHITE);
@@ -105,7 +102,7 @@ void CMainScreen::draw() {
   
   gDisp.setTextColor(WHITE);
   gDisp.setTextSize(1);
-  printCentered(buffer, 64, 57);
+  printCentered(FPSTR(pgmStr), 64, 57);
 
   //Debug info
   gDisp.setCursor(0,0);
@@ -166,7 +163,7 @@ void CNumberSelectScreen::draw() {
   gDisp.setCursor(0,0);
   gDisp.print(mNumber);
   gDisp.setTextSize(1);
-  printCentered(mText.c_str(), 64, 57);
+  printCentered(mText, 64, 57);
   gDisp.display();
 }
 
@@ -179,6 +176,14 @@ void CNumberSelectScreen::dec() {
 }
 
 // ***** TARGET TEMP SELECT SCREEN *****
+CTargetTempSelectScreen::CTargetTempSelectScreen()
+  : CNumberSelectScreen(FPSTR(STR_SELECT_TEMP),
+                        gBoilerConfig.getTargetTemp(),
+                        30,
+                        90) {
+
+}
+
 CScreen* CTargetTempSelectScreen::transition() {
   CScreen* oldThis = this;
   CScreen* ret = CScreen::transition();
