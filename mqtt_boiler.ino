@@ -21,14 +21,14 @@
 
 // ***** CONFIG *****
 // Hardware configuration
-#define PIN_THERMOMETER 2
-#define PIN_OLED_DC 0
+#define PIN_THERMOMETER 10
+#define PIN_OLED_DC 3
 #define PIN_OLED_CS 15
-#define PIN_POT_SW 4
+#define PIN_POT_SW 2
 #define PIN_POT_DT 16
-#define PIN_POT_CLK 5
-#define PIN_HEATER_LO_RELAY 10
-#define PIN_HEATER_HI_RELAY 10
+#define PIN_POT_CLK 0
+#define PIN_HEATER_LO_RELAY 4
+#define PIN_HEATER_HI_RELAY 5
 
 #define POT_DEBOUNCE_MS 15
 #define POT_SW_DEBOUNCE_MS 25

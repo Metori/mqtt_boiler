@@ -291,8 +291,8 @@ void CErrorScreen::draw() {
   strcpy_P(errCaption, STR_ERROR);
   itoa((int)mError, errCaption + 1, 10);
 
-  printCentered(errCaption, 63, 5, 2);
-  printCentered(FPSTR(STR_ARR_ERRORS[(int)mError]), 63, 22);
+  printCentered(errCaption, 63, 5, 4);
+  printCentered(FPSTR(STR_ARR_ERRORS[(int)mError]), 63, 38);
 
   gDisp.display();
 }
