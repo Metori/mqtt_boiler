@@ -36,6 +36,8 @@
 #define TEMP_UPDATE_INTERVAL_MS 5000
 #define TEMP_VALID_MIN 0
 #define TEMP_VALID_MAX 90
+
+#define TEMP_HOLD_TOLERANCE_C 1
 // ***** END OF CONFIG *****
 
 CHeater gHeater(PIN_HEATER_LO_RELAY, PIN_HEATER_HI_RELAY);
@@ -51,6 +53,8 @@ CScreen* curScreenPtr = nullptr;
 CTemperature gTemperature(PIN_THERMOMETER, TEMP_UPDATE_INTERVAL_MS);
 CBoilerConfig gBoilerConfig;
 
+bool error = false;
+
 void setupDisplay() {
   gDisp.begin(SSD1306_SWITCHCAPVCC);
   gDisp.clearDisplay();
@@ -59,10 +63,6 @@ void setupDisplay() {
 void updateDisplay() {
   curScreenPtr = curScreenPtr->transition();
   curScreenPtr->draw();
-}
-
-void halt() {
-  while(1);
 }
 
 void setup(void) {
@@ -74,22 +74,40 @@ void setup(void) {
   if (gTemperature.init()) curScreenPtr = new CCurrentTempScreen();
   else {
     curScreenPtr = new CErrorScreen(EError::ERR_TEMP_SENSOR);
-    halt();
+    error = true;
   }
 }
 
 void loop(void) {
-  float t = gTemperature.update();
-  if (t < TEMP_VALID_MIN) {
-    delete curScreenPtr;
-    curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_LOW);
-    halt();
+  if (!error) {
+    float t = gTemperature.update();
+
+    // Error handling
+    if (t < TEMP_VALID_MIN || t > TEMP_VALID_MAX) {
+      gHeater.setPower(EHeaterPower::HEATER_OFF);
+
+      error = true;
+      delete curScreenPtr;
+      if (t < TEMP_VALID_MIN) {
+        curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_LOW);
+      }
+      else if (t > TEMP_VALID_MAX) {
+        curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_HIGH);
+      }
+    }
+
+    // Thermostat
+    int8 target = gBoilerConfig.getTargetTemp();
+    bool heating = gHeater.getPower() > EHeaterPower::HEATER_OFF;
+    if (!heating && ( t < (target - TEMP_HOLD_TOLERANCE_C) )) {
+      gHeater.setPower(EHeaterPower::HEATER_BOTH);
+    }
+    if (heating && ( t > (target + TEMP_HOLD_TOLERANCE_C) )) {
+      gHeater.setPower(EHeaterPower::HEATER_OFF);
+    }
   }
-  else if (t > TEMP_VALID_MAX) {
-    delete curScreenPtr;
-    curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_HIGH);
-    halt();
-  }
+
+  // Need to update display even in error condition
   updateDisplay();
 }
 
