@@ -2,6 +2,7 @@
 #include "Temperature.h"
 #include "Screen.h"
 #include "Controls.h"
+#include "Heater.h"
 #include <cmath>
 
 /* HW history
@@ -26,6 +27,8 @@
 #define PIN_POT_SW 4
 #define PIN_POT_DT 16
 #define PIN_POT_CLK 5
+#define PIN_HEATER_LO_RELAY 10
+#define PIN_HEATER_HI_RELAY 10
 
 #define POT_DEBOUNCE_MS 15
 #define POT_SW_DEBOUNCE_MS 25
@@ -34,6 +37,8 @@
 #define TEMP_VALID_MIN 0
 #define TEMP_VALID_MAX 90
 // ***** END OF CONFIG *****
+
+CHeater gHeater(PIN_HEATER_LO_RELAY, PIN_HEATER_HI_RELAY);
 
 CControls gControls(PIN_POT_CLK,
                     PIN_POT_DT,
