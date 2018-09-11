@@ -4,9 +4,17 @@
 #include "res/Bitmaps.h"
 #include "res/Strings.h"
 
-void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y) {
-  int16_t w = strlen_P((const char*)str) * 6;
+void printCentered(const char* str, uint16_t x, uint16_t y, uint8_t textSize) {
+  int16_t w = strlen(str) * 6 * textSize;
   gDisp.setCursor(x - w / 2, y);
+  gDisp.setTextSize(textSize);
+  gDisp.print(str);
+}
+
+void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y, uint8_t textSize) {
+  int16_t w = strlen_P((const char*)str) * 6 * textSize;
+  gDisp.setCursor(x - w / 2, y);
+  gDisp.setTextSize(textSize);
   gDisp.print(str);
 }
 
@@ -101,8 +109,7 @@ void CMainScreen::draw() {
   gDisp.fillTriangle(113, 31, 103, 21, 103, 41, WHITE);
   
   gDisp.setTextColor(WHITE);
-  gDisp.setTextSize(1);
-  printCentered(FPSTR(pgmStr), 64, 57);
+  printCentered(FPSTR(pgmStr), 63, 57);
 
   //Debug info
   gDisp.setCursor(0,0);
@@ -134,13 +141,13 @@ CScreen* CCurrentTempScreen::transition() {
 }
 
 void CCurrentTempScreen::draw() {
+  char buffer[2];
   int8 rounded = (int8)round(gTemperature.getValue());
+  itoa(rounded, buffer, 10);
 
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
-  gDisp.setTextSize(9);
-  gDisp.setCursor(0,0);
-  gDisp.print(rounded);
+  printCentered(buffer, 63, 0, 8);
   gDisp.display();
 }
 
@@ -156,14 +163,14 @@ void CNumberSelectScreen::draw() {
     default:
       break;
   }
+
+  char buffer[2];
+  itoa(mNumber, buffer, 10);
   
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
-  gDisp.setTextSize(8);
-  gDisp.setCursor(0,0);
-  gDisp.print(mNumber);
-  gDisp.setTextSize(1);
-  printCentered(mText, 64, 57);
+  printCentered(buffer, 63, 0, 8);
+  printCentered(mText, 63, 57);
   gDisp.display();
 }
 

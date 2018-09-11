@@ -12,7 +12,8 @@
 
 extern Adafruit_SSD1306 gDisp;
 
-void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y);
+void printCentered(const char* str, uint16_t x, uint16_t y, uint8_t textSize = 1);
+void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y, uint8_t textSize = 1);
 
 class CScreen {
 public:
