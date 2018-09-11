@@ -47,7 +47,7 @@ CScreen* CMainScreen::transition() {
           ret = new CTargetTempSelectScreen();
           break;
         case 2:
-          ret = new CPowerModeSelectScreen((uint8_t)gBoilerConfig.getPowerMode());
+          ret = new CPowerModeSelectScreen();
           break;
         default:
           //TODO
@@ -255,6 +255,11 @@ void COptionChooseScreen::dec() {
 }
 
 // ***** POWER MODE SELECT SCREEN *****
+CPowerModeSelectScreen::CPowerModeSelectScreen()
+  : COptionChooseScreen({"LO", "ME", "HI"}, (uint8_t)gBoilerConfig.getPowerMode()) {
+
+}
+
 CScreen* CPowerModeSelectScreen::transition() {
   CScreen* oldThis = this;
   CScreen* ret = CScreen::transition();

@@ -157,10 +157,7 @@ public:
 
 class CPowerModeSelectScreen : public COptionChooseScreen {
 public:
-  CPowerModeSelectScreen(uint8_t initial)
-    : COptionChooseScreen({"LO", "ME", "HI"}, initial) {
-
-  }
+  CPowerModeSelectScreen();
   virtual ~CPowerModeSelectScreen() override {
 
   }
