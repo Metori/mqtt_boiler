@@ -15,7 +15,8 @@ const char STR_ARR_ERRORS[][22] PROGMEM = {
   "unknown",
   "temp sensor not found",
   "temp < 0",
-  "temp > 90"
+  "temp > 90",
+  "EEPROM failure"
 };
 
 #endif // _STRINGS_H

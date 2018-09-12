@@ -19,7 +19,8 @@ typedef enum {
   ERR_UNKNOWN,
   ERR_TEMP_SENSOR,
   ERR_TEMP_TOO_LOW,
-  ERR_TEMP_TOO_HIGH
+  ERR_TEMP_TOO_HIGH,
+  ERR_EEPROM_FAIL
 } EError;
 
 class CScreen {

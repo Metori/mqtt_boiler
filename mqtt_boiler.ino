@@ -37,8 +37,6 @@
 #define TEMP_UPDATE_INTERVAL_MS 5000
 #define TEMP_VALID_MIN_C 0
 #define TEMP_VALID_MAX_C 90
-
-#define TEMP_HOLD_TOLERANCE_C 1.0
 // ***** END OF CONFIG *****
 
 CHeater gHeater(PIN_HEATER_LO_RELAY, PIN_HEATER_HI_RELAY);
@@ -72,10 +70,17 @@ void setup(void) {
 
   setupDisplay();
 
-  if (gTemperature.init()) curScreenPtr = new CCurrentTempScreen();
-  else {
+  // Startup error handling
+  if (!gBoilerConfig.init()) {
+    curScreenPtr = new CErrorScreen(EError::ERR_EEPROM_FAIL);
+    error = true;
+  }
+  else if (!gTemperature.init()) {
     curScreenPtr = new CErrorScreen(EError::ERR_TEMP_SENSOR);
     error = true;
+  }
+  else {
+    curScreenPtr = new CCurrentTempScreen();
   }
 }
 
@@ -83,7 +88,7 @@ void loop(void) {
   if (!error) {
     float t = gTemperature.update();
 
-    // Error handling
+    // Runtime error handling
     if (t < TEMP_VALID_MIN_C || t > TEMP_VALID_MAX_C) {
       gHeater.disable();
 
@@ -99,11 +104,12 @@ void loop(void) {
 
     // Thermostat
     float target = (float)gBoilerConfig.getTargetTemp();
+    float tol = gBoilerConfig.getTempHoldTolerance();
     bool heating = gHeater.isEnabled();
-    if (!heating && ( t < (target - TEMP_HOLD_TOLERANCE_C) )) {
+    if (!heating && ( t < (target - tol) )) {
       gHeater.enable();
     }
-    else if (heating && ( t > (target + TEMP_HOLD_TOLERANCE_C) )) {
+    else if (heating && ( t > (target + tol) )) {
       gHeater.disable();
     }
   }
