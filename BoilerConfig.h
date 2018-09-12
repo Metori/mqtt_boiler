@@ -41,6 +41,16 @@ public:
     EEPROM.commit();
   }
 
+  bool isFactoryDefault() {
+    bool ret = mIsDefault;
+    if (ret) {
+      mIsDefault = false;
+      commitAll();
+    }
+
+    return ret;
+  }
+
   EPowerMode getPowerMode() {
     return mPowerMode;
   }
@@ -70,6 +80,7 @@ private:
   EPowerMode mPowerMode = CONFIG_INITIAL_POWER_MODE;
   int8 mTargetTemp = CONFIG_INITIAL_TARGET_TEMP;
   float mTempHoldTolerance = CONFIG_INITIAL_TEMP_HOLD_TOL;
+  bool mIsDefault = true;
 };
 
 extern CBoilerConfig gBoilerConfig;

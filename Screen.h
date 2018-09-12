@@ -116,9 +116,11 @@ private:
 
 class CConfirmScreen : public CScreen {
 public:
-  CConfirmScreen(uint8_t initial)
-    : mStartTime(millis()),
-      mMainScreenItemInitial(initial) {
+  CConfirmScreen(CScreen* nextScreen, unsigned long timeout = CONFIRM_SCREEN_TIMEOUT_MS)
+    : CScreen(false),
+      mStartTime(millis()),
+      mNextScreen(nextScreen),
+      mTimeout(timeout) {
     
   }
   virtual ~CConfirmScreen() override {
@@ -130,7 +132,29 @@ public:
 
 private:
   unsigned long mStartTime;
-  uint8_t mMainScreenItemInitial;
+  CScreen* mNextScreen;
+  unsigned long mTimeout;
+};
+
+class CMessageScreen : public CConfirmScreen {
+public:
+  CMessageScreen(const __FlashStringHelper* caption,
+                 const __FlashStringHelper* msg,
+                 CScreen* nextScreen)
+    : CConfirmScreen(nextScreen, 0),
+      mCaption(caption),
+      mMsg(msg) {
+
+  }
+  virtual ~CMessageScreen() override {
+
+  }
+
+  virtual void draw() override;
+
+private:
+  const __FlashStringHelper* mCaption;
+  const __FlashStringHelper* mMsg;
 };
 
 class CMainScreen : public CScreen {

@@ -3,6 +3,7 @@
 #include "Screen.h"
 #include "Controls.h"
 #include "Heater.h"
+#include "res/Strings.h"
 #include <cmath>
 
 /* HW history
@@ -78,6 +79,11 @@ void setup(void) {
   else if (!gTemperature.init()) {
     curScreenPtr = new CErrorScreen(EError::ERR_TEMP_SENSOR);
     error = true;
+  }
+  else if (gBoilerConfig.isFactoryDefault()) {
+    curScreenPtr = new CMessageScreen(FPSTR(STR_INITIAL_MSG_CAP),
+                                      FPSTR(STR_INITIAL_MSG_TEXT),
+                                      new CMainScreen(1));
   }
   else {
     curScreenPtr = new CCurrentTempScreen();

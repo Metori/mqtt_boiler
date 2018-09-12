@@ -199,7 +199,7 @@ CScreen* CTargetTempSelectScreen::transition() {
     if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
       gBoilerConfig.setTargetTemp(getNumber());
       delete this;
-      ret = new CConfirmScreen(1);
+      ret = new CConfirmScreen(new CMainScreen(1));
     }
   }
 
@@ -211,9 +211,10 @@ CScreen* CConfirmScreen::transition() {
   CScreen* oldThis = this;
   CScreen* ret = CScreen::transition();
   if (ret == oldThis) {
-    if (millis() - mStartTime > CONFIRM_SCREEN_TIMEOUT_MS) {
+    if (gControls.getEvent() == EControlEvent::POT_SW_PRESS ||
+        (mTimeout != 0 && (millis() - mStartTime > mTimeout)) ) {
       delete this;
-      ret = new CMainScreen(mMainScreenItemInitial);
+      ret = mNextScreen;
     }
   }
 
@@ -279,7 +280,7 @@ CScreen* CPowerModeSelectScreen::transition() {
       if (gHeater.isEnabled()) gHeater.updateRelays();
 
       delete this;
-      ret = new CConfirmScreen(2);
+      ret = new CConfirmScreen(new CMainScreen(2));
     }
   }
 
@@ -297,6 +298,17 @@ void CErrorScreen::draw() {
 
   printCentered(errCaption, 63, 5, 4);
   printCentered(FPSTR(STR_ARR_ERRORS[(int)mError]), 63, 38);
+
+  gDisp.display();
+}
+
+// ***** MESSAGE SCREEN *****
+void CMessageScreen::draw() {
+  gDisp.clearDisplay();
+  gDisp.setTextColor(WHITE);
+
+  printCentered(mCaption, 63, 5, 4);
+  printCentered(mMsg, 63, 38);
 
   gDisp.display();
 }
