@@ -1,6 +1,7 @@
 #include "Temperature.h"
 #include "Screen.h"
 #include "Controls.h"
+#include "Heater.h"
 #include "res/Bitmaps.h"
 #include "res/Strings.h"
 
@@ -273,7 +274,10 @@ CScreen* CPowerModeSelectScreen::transition() {
   if (ret == oldThis) {
     if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
       EPowerMode mode = (EPowerMode)getSelected();
+
       gBoilerConfig.setPowerMode(mode);
+      if (gHeater.isEnabled()) gHeater.updateRelays();
+
       delete this;
       ret = new CConfirmScreen(2);
     }

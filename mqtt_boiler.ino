@@ -10,14 +10,15 @@
  */
 
 /* SW history
- *  0.1 - Initial code. Can only measure temperature
- *  0.2 - Controls, Screens, BoilerConfig added. Development is in progress
- *  0.3 - Temperature element added. Code style fixes. Development is in progress
+ * 0.1 - Initial code. Can only measure temperature
+ * 0.2 - Controls, Screens, BoilerConfig added. Development is in progress
+ * 0.3 - Temperature element added. Code style fixes. Development is in progress
+ * 0.4 - Heater component added. Development is in progress
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
 #define DEVICE_HW_VERSION "0.1"
-#define DEVICE_SW_VERSION "0.3"
+#define DEVICE_SW_VERSION "0.4"
 
 // ***** CONFIG *****
 // Hardware configuration
@@ -34,10 +35,10 @@
 #define POT_SW_DEBOUNCE_MS 25
 
 #define TEMP_UPDATE_INTERVAL_MS 5000
-#define TEMP_VALID_MIN 0
-#define TEMP_VALID_MAX 90
+#define TEMP_VALID_MIN_C 0
+#define TEMP_VALID_MAX_C 90
 
-#define TEMP_HOLD_TOLERANCE_C 1
+#define TEMP_HOLD_TOLERANCE_C 1.0
 // ***** END OF CONFIG *****
 
 CHeater gHeater(PIN_HEATER_LO_RELAY, PIN_HEATER_HI_RELAY);
@@ -83,27 +84,27 @@ void loop(void) {
     float t = gTemperature.update();
 
     // Error handling
-    if (t < TEMP_VALID_MIN || t > TEMP_VALID_MAX) {
-      gHeater.setPower(EHeaterPower::HEATER_OFF);
+    if (t < TEMP_VALID_MIN_C || t > TEMP_VALID_MAX_C) {
+      gHeater.disable();
 
       error = true;
       delete curScreenPtr;
-      if (t < TEMP_VALID_MIN) {
+      if (t < TEMP_VALID_MIN_C) {
         curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_LOW);
       }
-      else if (t > TEMP_VALID_MAX) {
+      else if (t > TEMP_VALID_MAX_C) {
         curScreenPtr = new CErrorScreen(EError::ERR_TEMP_TOO_HIGH);
       }
     }
 
     // Thermostat
-    int8 target = gBoilerConfig.getTargetTemp();
-    bool heating = gHeater.getPower() > EHeaterPower::HEATER_OFF;
+    float target = (float)gBoilerConfig.getTargetTemp();
+    bool heating = gHeater.isEnabled();
     if (!heating && ( t < (target - TEMP_HOLD_TOLERANCE_C) )) {
-      gHeater.setPower(EHeaterPower::HEATER_BOTH);
+      gHeater.enable();
     }
-    if (heating && ( t > (target + TEMP_HOLD_TOLERANCE_C) )) {
-      gHeater.setPower(EHeaterPower::HEATER_OFF);
+    else if (heating && ( t > (target + TEMP_HOLD_TOLERANCE_C) )) {
+      gHeater.disable();
     }
   }
 
