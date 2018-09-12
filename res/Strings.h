@@ -8,6 +8,10 @@ const char STR_MORE_OPTIONS[] PROGMEM          = "MORE OPTIONS";
 
 const char STR_SELECT_TEMP[] PROGMEM           = "SELECT TEMP";
 
+const char STR_POWER_MODE_LO[] PROGMEM         = "LOW";
+const char STR_POWER_MODE_ME[] PROGMEM         = "MEDIUM";
+const char STR_POWER_MODE_HI[] PROGMEM         = "HIGH";
+
 const char STR_INITIAL_MSG_CAP[] PROGMEM       = "HELLO";
 const char STR_INITIAL_MSG_TEXT[] PROGMEM      = "factory config used";
 

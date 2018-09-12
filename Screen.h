@@ -73,7 +73,7 @@ private:
 
 class COptionChooseScreen : public CScreen {
 public:
-  COptionChooseScreen(std::vector<std::string> textOptions, uint8_t initial)
+  COptionChooseScreen(const std::vector<const __FlashStringHelper*> textOptions, uint8_t initial)
     : mTextOptions(textOptions),
       mSelected(initial) {
 
@@ -93,7 +93,7 @@ private:
   void inc();
   void dec();
 
-  std::vector<std::string> mTextOptions;
+  const std::vector<const __FlashStringHelper*> mTextOptions;
   uint8_t mSelected;
 };
 
@@ -185,7 +185,7 @@ class CCurrentTempScreen : public CScreen {
 public:
   CCurrentTempScreen()
     : CScreen(false) {
-      Serial.println("CurrentTempScreen created");
+
   }
   virtual ~CCurrentTempScreen() override {
     

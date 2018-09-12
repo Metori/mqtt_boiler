@@ -243,13 +243,12 @@ void COptionChooseScreen::draw() {
   gDisp.clearDisplay();
   gDisp.setTextSize(2);
 
-  gDisp.setCursor(0, 25);
+  gDisp.setCursor(0, 0);
   for (int i = 0; i < mTextOptions.size(); i++) {
     if (i == mSelected) gDisp.setTextColor(BLACK, WHITE);
     else gDisp.setTextColor(WHITE);
 
-    gDisp.print(mTextOptions[i].c_str());
-    gDisp.print(" ");
+    gDisp.println(mTextOptions[i]);
   }
 
   gDisp.display();
@@ -265,7 +264,9 @@ void COptionChooseScreen::dec() {
 
 // ***** POWER MODE SELECT SCREEN *****
 CPowerModeSelectScreen::CPowerModeSelectScreen()
-  : COptionChooseScreen({"LO", "ME", "HI"}, (uint8_t)gBoilerConfig.getPowerMode()) {
+  : COptionChooseScreen({FPSTR(STR_POWER_MODE_LO),
+                         FPSTR(STR_POWER_MODE_ME),
+                         FPSTR(STR_POWER_MODE_HI)}, (uint8_t)gBoilerConfig.getPowerMode()) {
 
 }
 

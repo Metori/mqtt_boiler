@@ -15,15 +15,17 @@
  * 0.2 - Controls, Screens, BoilerConfig added. Development is in progress
  * 0.3 - Temperature element added. Code style fixes. Development is in progress
  * 0.4 - Heater component added. Development is in progress
+ * 0.5 - Tuning
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
 #define DEVICE_HW_VERSION "0.1"
-#define DEVICE_SW_VERSION "0.4"
+#define DEVICE_SW_VERSION "0.5"
 
 // ***** CONFIG *****
 // Hardware configuration
 #define PIN_THERMOMETER 10
+#define PIN_OLED_RES 1
 #define PIN_OLED_DC 3
 #define PIN_OLED_CS 15
 #define PIN_POT_SW 2
@@ -35,7 +37,7 @@
 #define POT_DEBOUNCE_MS 15
 #define POT_SW_DEBOUNCE_MS 25
 
-#define TEMP_UPDATE_INTERVAL_MS 5000
+#define TEMP_UPDATE_INTERVAL_MS 2000
 #define TEMP_VALID_MIN_C 0
 #define TEMP_VALID_MAX_C 90
 // ***** END OF CONFIG *****
@@ -48,7 +50,7 @@ CControls gControls(PIN_POT_CLK,
                     POT_DEBOUNCE_MS,
                     POT_SW_DEBOUNCE_MS);
 
-Adafruit_SSD1306 gDisp(PIN_OLED_DC, -1, PIN_OLED_CS);
+Adafruit_SSD1306 gDisp(PIN_OLED_DC, PIN_OLED_RES, PIN_OLED_CS);
 CScreen* curScreenPtr = nullptr;
 CTemperature gTemperature(PIN_THERMOMETER, TEMP_UPDATE_INTERVAL_MS);
 CBoilerConfig gBoilerConfig;
@@ -66,8 +68,8 @@ void updateDisplay() {
 }
 
 void setup(void) {
-  Serial.begin(9600);
-  Serial.println(DEVICE_NAME " HW Ver. " DEVICE_HW_VERSION " SW Ver. " DEVICE_SW_VERSION);
+  //Serial.begin(9600);
+  //Serial.println(DEVICE_NAME " HW Ver. " DEVICE_HW_VERSION " SW Ver. " DEVICE_SW_VERSION);
 
   setupDisplay();
 
@@ -108,15 +110,17 @@ void loop(void) {
       }
     }
 
-    // Thermostat
-    float target = (float)gBoilerConfig.getTargetTemp();
-    float tol = gBoilerConfig.getTempHoldTolerance();
-    bool heating = gHeater.isEnabled();
-    if (!heating && ( t < (target - tol) )) {
-      gHeater.enable();
-    }
-    else if (heating && ( t > (target + tol) )) {
-      gHeater.disable();
+    if (!error) {
+      // Thermostat
+      float target = (float)gBoilerConfig.getTargetTemp();
+      float tol = gBoilerConfig.getTempHoldTolerance();
+      bool heating = gHeater.isEnabled();
+      if (!heating && ( t < (target - tol) )) {
+        gHeater.enable();
+      }
+      else if (heating && ( t > (target + tol) )) {
+        gHeater.disable();
+      }
     }
   }
 

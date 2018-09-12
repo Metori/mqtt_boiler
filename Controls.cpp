@@ -16,11 +16,9 @@ EControlEvent CControls::update() {
   mDebouncerPotSw.update();
   if (mDebouncerPotSw.fell()) {
     mEvent = EControlEvent::POT_SW_PRESS;
-    Serial.println("sw press");
   }
   else if (mDebouncerPotSw.rose()) {
     mEvent = EControlEvent::POT_SW_RELEASE;
-    Serial.println("sw release");
   }
   
   return mEvent;
