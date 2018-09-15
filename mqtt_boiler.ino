@@ -4,10 +4,12 @@
 #include "Controls.h"
 #include "Heater.h"
 #include "res/Strings.h"
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
 #include <cmath>
 
 /* HW history
- *  0.1 - Initial HW for testing
+ * 0.1 - Initial HW for testing
  */
 
 /* SW history
@@ -16,11 +18,12 @@
  * 0.3 - Temperature element added. Code style fixes. Development is in progress
  * 0.4 - Heater component added. Development is in progress
  * 0.5 - Tuning
+ * 0.6 - Wifi and MQTT initial code added
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
 #define DEVICE_HW_VERSION "0.1"
-#define DEVICE_SW_VERSION "0.5"
+#define DEVICE_SW_VERSION "0.6"
 
 // ***** CONFIG *****
 // Hardware configuration
@@ -34,12 +37,30 @@
 #define PIN_HEATER_LO_RELAY 4
 #define PIN_HEATER_HI_RELAY 5
 
+// Software configuration
 #define POT_DEBOUNCE_MS 15
 #define POT_SW_DEBOUNCE_MS 25
 
 #define TEMP_UPDATE_INTERVAL_MS 2000
 #define TEMP_VALID_MIN_C 0
 #define TEMP_VALID_MAX_C 90
+
+const char* WIFI_SSID = "WIFI_SSID";
+const char* WIFI_PASSWORD = "WIFI_PASSWORD";
+const char* MQTT_SERVER_ADDR = "1.2.3.4";
+const uint16_t MQTT_SERVER_PORT = 1883;
+const char* MQTT_USER_NAME = "MQTT_USER_NAME";
+const char* MQTT_USER_PASSWORD = "MQTT_USER_PASSWORD";
+const char* MQTT_CLIENT_ID = "boiler";
+const char* MQTT_TOPIC_IN = "boiler/data/in";
+const char* MQTT_TOPIC_OUT = "boiler/data/out";
+const char* MQTT_TOPIC_STATUS_IN = "boiler/status/in";
+const char* MQTT_TOPIC_STATUS_OUT = "boiler/status/out";
+
+// High level status protocol messages
+const uint8_t MSG_STATUS_OUT_READY = 0x52; //'R'
+const char* MSG_STATUS_OUT_LAST_WILL = "L"; //null terminated 'L'
+const uint8_t MSG_STATUS_IN_PING = 0x50; //P
 // ***** END OF CONFIG *****
 
 CHeater gHeater(PIN_HEATER_LO_RELAY, PIN_HEATER_HI_RELAY);
@@ -56,6 +77,107 @@ CTemperature gTemperature(PIN_THERMOMETER, TEMP_UPDATE_INTERVAL_MS);
 CBoilerConfig gBoilerConfig;
 
 bool error = false;
+
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
+
+void msgStatusSend(uint8_t msg) {
+  mqttClient.publish(MQTT_STATUS_TOPIC_OUT, &msg, 1);
+}
+
+void msgSend(const char* msg) {
+  mqttClient.publish(MQTT_TOPIC_OUT, msg);
+}
+
+bool mqttReconnect() {
+  // Serial.println();
+  // Serial.println();
+  // Serial.print("(Re)connecting to MQTT server on ");
+  // Serial.print(MQTT_SERVER_ADDR);
+  // Serial.print("...");
+
+  for (int i = 0; !mqttClient.connected(); i++) {
+    if (mqttClient.connect(MQTT_CLIENT_ID,
+                           MQTT_USER_NAME,
+                           MQTT_USER_PASSWORD,
+                           MQTT_STATUS_TOPIC_OUT,
+                           0,
+                           0,
+                           MSG_STATUS_OUT_LAST_WILL)) {
+      msgSend(MSG_STATUS_OUT_READY);
+      mqttClient.subscribe(MQTT_STATUS_TOPIC_IN);
+      mqttClient.subscribe(MQTT_TOPIC_IN);
+    } else {
+      delay(5000);
+      if (i >= 5) return false;
+    }
+  }
+  // Serial.println(" Done");
+  // Serial.println("Current state: IDLE");
+  // digitalWrite(PIN_LED_STATUS, LED_ON);
+  return true;
+}
+
+void wifiDisconnect() {
+  WiFi.disconnect();
+  // digitalWrite(PIN_LED_STATUS, LED_OFF);
+}
+
+void wifiConnect() {
+  // Serial.println();
+  // Serial.println();
+  // Serial.print("(Re)connecting to Wi-Fi \"");
+  // Serial.print(WIFI_SSID);
+  // Serial.print("\"...");
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+  // Serial.println(" Done");
+  // Serial.println("IP address: ");
+  // Serial.print(WiFi.localIP());
+}
+
+void wifiReconnect() {
+  wifiDisconnect();
+  wifiConnect();
+}
+
+void allReconnect() {
+  do {
+    if (WiFi.status() != WL_CONNECTED) {
+      wifiReconnect();
+    }
+  } while(!mqttReconnect());
+}
+
+void onMqttMsgReceived(char* topic, byte* payload, unsigned int len) {
+  // Status request
+  if (!strcmp(topic, MQTT_TOPIC_STATUS_IN)) {
+    if (len != 1) return;
+    uint8_t cmd = (uint8_t)payload[0];
+    switch (cmd) {
+      case MSG_IN_PING:
+        msgStatusSend(MSG_STATUS_OUT_READY);
+        break;
+
+      default:
+        break;
+    }
+  }
+  // Control request
+  else if (!strcmp(topic, MQTT_TOPIC_IN)) {
+    //TODO
+  }
+}
+
+void mqttInit() {
+  mqttClient.setServer(MQTT_SERVER_ADDR, MQTT_SERVER_PORT);
+  mqttClient.setCallback(onMqttMsgReceived);
+}
 
 void setupDisplay() {
   gDisp.begin(SSD1306_SWITCHCAPVCC);
@@ -90,6 +212,8 @@ void setup(void) {
   else {
     curScreenPtr = new CCurrentTempScreen();
   }
+  
+  mqttInit();
 }
 
 void loop(void) {
@@ -124,7 +248,13 @@ void loop(void) {
     }
   }
 
-  // Need to update display even in error condition
+  // Need to update display and connectivity even in error condition
   updateDisplay();
+  
+  if ((WiFi.status() != WL_CONNECTED) || (!mqttClient.connected())) {
+    allReconnect();
+  }
+
+  mqttClient.loop();
 }
 
