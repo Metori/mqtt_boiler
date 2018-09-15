@@ -1,6 +1,7 @@
 #ifndef _TEMPERATURE_H
 #define _TEMPERATURE_H
 
+#include "BoilerConfig.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -22,8 +23,7 @@ public:
     if (res) {
       mSensors.setResolution(mSensorAddr, 9);
 
-      mSensors.requestTemperatures();
-      mTemperatureValue = mSensors.getTempC(mSensorAddr);
+      measure();
       mLastTempUpdateTime = millis();
     }
 
@@ -33,8 +33,7 @@ public:
   float update() {
     unsigned long t = millis();
     if (t - mLastTempUpdateTime > mUpdateInterval) {
-      mSensors.requestTemperatures();
-      mTemperatureValue = mSensors.getTempC(mSensorAddr);
+      measure();
       mLastTempUpdateTime = t;
     }
 
@@ -46,6 +45,11 @@ public:
   }
   
 private:
+  void measure() {
+    mSensors.requestTemperatures();
+    mTemperatureValue = mSensors.getTempC(mSensorAddr) + gBoilerConfig.getTempOffset();
+  }
+
   OneWire mOneWire;
   DallasTemperature mSensors;
   DeviceAddress mSensorAddr;

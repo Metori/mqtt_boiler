@@ -140,8 +140,9 @@ class CMessageScreen : public CConfirmScreen {
 public:
   CMessageScreen(const __FlashStringHelper* caption,
                  const __FlashStringHelper* msg,
-                 CScreen* nextScreen)
-    : CConfirmScreen(nextScreen, 0),
+                 CScreen* nextScreen,
+                 unsigned long timeout = 0)
+    : CConfirmScreen(nextScreen, timeout),
       mCaption(caption),
       mMsg(msg) {
 

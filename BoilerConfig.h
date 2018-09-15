@@ -6,7 +6,8 @@
 #define CONFIG_VALID_MAGIC 0x92
 #define CONFIG_INITIAL_POWER_MODE EPowerMode::POWER_HIGH
 #define CONFIG_INITIAL_TARGET_TEMP 60
-#define CONFIG_INITIAL_TEMP_HOLD_TOL 1.0f
+#define CONFIG_INITIAL_TEMP_HOLD_TOL 2.0f
+#define CONFIG_INITIAL_TEMP_OFFSET 12.0f
 
 typedef enum {
   POWER_LOW,
@@ -59,10 +60,10 @@ public:
     commitAll();
   }
 
-  int8 getTargetTemp() {
+  int8_t getTargetTemp() {
     return mTargetTemp;
   }
-  void setTargetTemp(int8 temp) {
+  void setTargetTemp(int8_t temp) {
     mTargetTemp = temp;
     commitAll();
   }
@@ -75,11 +76,20 @@ public:
     commitAll();
   }
 
+  float getTempOffset() {
+    return mTempOffset;
+  }
+  void setTempOffset(float offset) {
+    mTempOffset = offset;
+    commitAll();
+  }
+
 private:
   uint8_t mMagic = 0;
   EPowerMode mPowerMode = CONFIG_INITIAL_POWER_MODE;
-  int8 mTargetTemp = CONFIG_INITIAL_TARGET_TEMP;
+  int8_t mTargetTemp = CONFIG_INITIAL_TARGET_TEMP;
   float mTempHoldTolerance = CONFIG_INITIAL_TEMP_HOLD_TOL;
+  float mTempOffset = CONFIG_INITIAL_TEMP_OFFSET;
   bool mIsDefault = true;
 };
 

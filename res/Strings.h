@@ -15,6 +15,15 @@ const char STR_POWER_MODE_HI[] PROGMEM         = "HIGH";
 const char STR_INITIAL_MSG_CAP[] PROGMEM       = "HELLO";
 const char STR_INITIAL_MSG_TEXT[] PROGMEM      = "factory config used";
 
+const char STR_CONNECTED_MSG_CAP[] PROGMEM     = "MQTT";
+const char STR_CONNECTED_MSG_TEXT[] PROGMEM    = "Connected to server";
+
+const char STR_CONNECTING_MSG_CAP[] PROGMEM    = "MQTT";
+const char STR_CONNECTING_MSG_TEXT[] PROGMEM   = "Connecting...";
+
+const char STR_CONN_LOST_MSG_CAP[] PROGMEM     = "MQTT";
+const char STR_CONN_LOST_MSG_TEXT[] PROGMEM    = "Reconnecting...";
+
 const char STR_ERROR[] PROGMEM                 = "E";
 const char STR_ARR_ERRORS[][22] PROGMEM = {
   "unknown",
