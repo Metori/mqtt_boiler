@@ -13,12 +13,22 @@ EControlEvent CControls::update() {
     mEvent = EControlEvent::NO_EVENT;
   }
 
+  unsigned long m = millis();
   mDebouncerPotSw.update();
   if (mDebouncerPotSw.fell()) {
     mEvent = EControlEvent::POT_SW_PRESS;
+    mLastPressTime = m;
+    mLongClickEventFired = false;
   }
-  else if (mDebouncerPotSw.rose()) {
-    mEvent = EControlEvent::POT_SW_RELEASE;
+  else if (mDebouncerPotSw.rose() &&
+           !mLongClickEventFired) {
+    mEvent = EControlEvent::POT_SW_SHORT_CLICK;
+  }
+  else if (!mDebouncerPotSw.read() && // SW is in pressed state now
+           !mLongClickEventFired &&
+           m - mLastPressTime > LONG_CLICK_TIME_MS) {
+    mEvent = EControlEvent::POT_SW_LONG_CLICK;
+    mLongClickEventFired = true;
   }
   
   return mEvent;

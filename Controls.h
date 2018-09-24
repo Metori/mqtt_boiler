@@ -4,12 +4,13 @@
 #include "Arduino.h"
 #include <Bounce2.h>
 
+#define LONG_CLICK_TIME_MS 1000
+
 typedef enum {
   NO_EVENT,
   POT_STEP_CW,
   POT_STEP_CCW,
   POT_SW_PRESS,
-  POT_SW_RELEASE,
   POT_SW_SHORT_CLICK,
   POT_SW_LONG_CLICK
 } EControlEvent;
@@ -41,6 +42,8 @@ private:
   Bounce mDebouncerPotSw = Bounce();
 
   EControlEvent mEvent = EControlEvent::NO_EVENT;
+  unsigned long mLastPressTime = 0;
+  bool mLongClickEventFired = true;
 };
 
 extern CControls gControls;

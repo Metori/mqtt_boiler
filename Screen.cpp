@@ -132,9 +132,12 @@ CScreen* CCurrentTempScreen::transition() {
   CScreen* oldThis = this;
   CScreen* ret = CScreen::transition();
   if (ret == oldThis) {
-    if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
+    if (gControls.getEvent() == EControlEvent::POT_SW_SHORT_CLICK) {
       delete this;
       ret = new CMainScreen(0);
+    }
+    else if(gControls.getEvent() == EControlEvent::POT_SW_LONG_CLICK) {
+      gBoilerConfig.setPaused(!gBoilerConfig.isPaused());
     }
   }
 
@@ -148,8 +151,22 @@ void CCurrentTempScreen::draw() {
 
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
-  printCentered(buffer, 63, 0, 8);
+  printCentered(buffer, 47, 0, 8);
   gDisp.display();
+
+  // Status icons draw
+  const unsigned char* bitmapPtr = nullptr;
+  if (gHeater.isEnabled()) {
+    bitmapPtr = BITMAP_HEATING;
+  } else {
+    if (gBoilerConfig.isPaused()) {
+      bitmapPtr = BITMAP_PAUSE;
+    }
+  }
+
+  if (!bitmapPtr) {
+    gDisp.drawBitmap(97, 31, bitmapPtr, 36, 36, WHITE);
+  }
 }
 
 // ***** NUMBER SELECT SCREEN *****

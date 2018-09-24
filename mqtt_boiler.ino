@@ -150,17 +150,23 @@ void loop(void) {
       }
     }
 
-    if (!error) {
+    bool paused = gBoilerConfig.isPaused();
+    bool heating = gHeater.isEnabled();
+
+    if (!error && !paused) {
       // Thermostat
       float target = (float)gBoilerConfig.getTargetTemp();
       float tol = gBoilerConfig.getTempHoldTolerance();
-      bool heating = gHeater.isEnabled();
       if (!heating && ( t < (target - tol) )) {
         gHeater.enable();
       }
       else if (heating && ( t > (target + tol) )) {
         gHeater.disable();
       }
+    }
+
+    if (heating && paused) {
+      gHeater.disable();
     }
   }
 

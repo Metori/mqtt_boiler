@@ -8,6 +8,7 @@
 #define CONFIG_INITIAL_TARGET_TEMP 60
 #define CONFIG_INITIAL_TEMP_HOLD_TOL 2.0f
 #define CONFIG_INITIAL_TEMP_OFFSET 12.0f
+#define CONFIG_INITIAL_PAUSED false
 
 typedef enum {
   POWER_LOW,
@@ -84,12 +85,21 @@ public:
     commitAll();
   }
 
+  bool isPaused() {
+    return mIsPaused;
+  }
+  void setPaused(bool paused) {
+    mIsPaused = paused;
+    commitAll();
+  }
+
 private:
   uint8_t mMagic = 0;
   EPowerMode mPowerMode = CONFIG_INITIAL_POWER_MODE;
   int8_t mTargetTemp = CONFIG_INITIAL_TARGET_TEMP;
   float mTempHoldTolerance = CONFIG_INITIAL_TEMP_HOLD_TOL;
   float mTempOffset = CONFIG_INITIAL_TEMP_OFFSET;
+  bool mIsPaused = CONFIG_INITIAL_PAUSED;
   bool mIsDefault = true;
 };
 
