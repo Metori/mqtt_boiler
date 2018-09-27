@@ -9,6 +9,7 @@
 
 /* HW history
  * 0.1 - Initial HW for testing
+ * 1.0 - NodeMCU + sensors installed in boiler
  */
 
 /* SW history
@@ -19,11 +20,12 @@
  * 0.5 - Tuning
  * 0.6 - Wifi and MQTT initial code added
  * 0.7 - Temp offset introduced. pin remap
+ * 0.8 - Pause function added. Short and long clicks handling added. Heating dot and pause icon added
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
-#define DEVICE_HW_VERSION "0.1"
-#define DEVICE_SW_VERSION "0.7"
+#define DEVICE_HW_VERSION "1.0"
+#define DEVICE_SW_VERSION "0.8"
 
 // ***** CONFIG *****
 // Hardware configuration
