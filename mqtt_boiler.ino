@@ -170,24 +170,27 @@ void loop(void) {
     }
   }
 
-  // Need to update display and connectivity even in error condition
-  updateDisplay();
   gNetwork.loop();
 
   bool isConnected = gNetwork.isConnected();
   if (isConnected != lastNetworkConnectedStatus) {
-    delete curScreenPtr;
-    if (isConnected) {
-      curScreenPtr = new CMessageScreen(FPSTR(STR_CONNECTED_MSG_CAP),
-                                        FPSTR(STR_CONNECTED_MSG_TEXT),
-                                        new CCurrentTempScreen(),
-                                        SCREEN_CONNECTED_TIMEOUT_MS);
-    } else {
-      curScreenPtr = new CMessageScreen(FPSTR(STR_CONN_LOST_MSG_CAP),
-                                        FPSTR(STR_CONN_LOST_MSG_TEXT),
-                                        new CCurrentTempScreen());
-    }
     lastNetworkConnectedStatus = isConnected;
+
+    if (!error) {
+      delete curScreenPtr;
+      if (isConnected) {
+        curScreenPtr = new CMessageScreen(FPSTR(STR_CONNECTED_MSG_CAP),
+                                          FPSTR(STR_CONNECTED_MSG_TEXT),
+                                          new CCurrentTempScreen(),
+                                          SCREEN_CONNECTED_TIMEOUT_MS);
+      } else {
+        curScreenPtr = new CMessageScreen(FPSTR(STR_CONN_LOST_MSG_CAP),
+                                          FPSTR(STR_CONN_LOST_MSG_TEXT),
+                                          new CCurrentTempScreen());
+      }
+    }
   }
+
+  updateDisplay();
 }
 
