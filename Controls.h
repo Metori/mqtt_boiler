@@ -35,6 +35,7 @@ public:
 
   EControlEvent update();
   EControlEvent getEvent();
+  void resetCurrentClick();
 
 private:
   Bounce mDebouncerPotClk = Bounce();

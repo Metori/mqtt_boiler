@@ -6,7 +6,5 @@
 #include "PowerMode.h"
 #include "More.h"
 #include "Confirm.h"
-#include "Pause.h"
-#include "Heating.h"
 
 #endif // _BITMAPS_H

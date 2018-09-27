@@ -9,6 +9,7 @@
 
 #define CONFIRM_SCREEN_TIMEOUT_MS 1000
 #define BACK_TO_DEFAULT_SCREEN_TIMEOUT_MS 10000
+#define HEATING_DOT_BLINK_PERIOD_MS 3000
 
 extern Adafruit_SSD1306 gDisp;
 
@@ -184,16 +185,19 @@ private:
 
 class CCurrentTempScreen : public CScreen {
 public:
-  CCurrentTempScreen()
-    : CScreen(false) {
-
-  }
+  CCurrentTempScreen();
   virtual ~CCurrentTempScreen() override {
     
   }
 
   virtual CScreen* transition() override;
   virtual void draw() override;
+
+private:
+  void heatingDotBlink();
+
+  unsigned long mBlinkPeriodStartTime = 0;
+  uint8_t mBlinker = 0;
 };
 
 class CTargetTempSelectScreen : public CNumberSelectScreen {

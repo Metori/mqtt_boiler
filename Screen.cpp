@@ -128,6 +128,11 @@ void CMainScreen::decSelection() {
 }
 
 // ***** CURRENT TEMP SCREEN *****
+CCurrentTempScreen::CCurrentTempScreen()
+  : CScreen(false) {
+  gControls.resetCurrentClick();
+}
+
 CScreen* CCurrentTempScreen::transition() {
   CScreen* oldThis = this;
   CScreen* ret = CScreen::transition();
@@ -152,20 +157,27 @@ void CCurrentTempScreen::draw() {
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
   printCentered(buffer, 47, 0, 8);
-  gDisp.display();
 
   // Status icons draw
-  const unsigned char* bitmapPtr = nullptr;
   if (gHeater.isEnabled()) {
-    bitmapPtr = BITMAP_HEATING;
-  } else {
-    if (gBoilerConfig.isPaused()) {
-      bitmapPtr = BITMAP_PAUSE;
-    }
+    heatingDotBlink();
+  } else if (gBoilerConfig.isPaused()) {
+    // Pause icon
+    gDisp.fillRect(103, 21, 6, 20, WHITE);
+    gDisp.fillRect(115, 21, 6, 20, WHITE);
   }
 
-  if (!bitmapPtr) {
-    gDisp.drawBitmap(97, 31, bitmapPtr, 36, 36, WHITE);
+  gDisp.display();
+}
+
+void CCurrentTempScreen::heatingDotBlink() {
+  if (mBlinker % 2) {
+    gDisp.fillCircle(112, 31, 15, WHITE);
+  }
+  unsigned long m = millis();
+  if (m - mBlinkPeriodStartTime > (HEATING_DOT_BLINK_PERIOD_MS / 2)) {
+    mBlinker++;
+    mBlinkPeriodStartTime = m;
   }
 }
 

@@ -38,3 +38,7 @@ EControlEvent CControls::getEvent() {
   return mEvent;
 }
 
+void CControls::resetCurrentClick() {
+  mLongClickEventFired = true;
+}
+
