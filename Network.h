@@ -14,6 +14,14 @@ const uint8_t MSG_STATUS_OUT_READY = 0x52; //'R'
 const char* MSG_STATUS_OUT_LAST_WILL = "L"; //null terminated 'L'
 const uint8_t MSG_STATUS_IN_PING = 0x50; //P
 
+const char* JSON_FIELD_OP = "op";
+const char* JSON_FIELD_TEMP = "temperature";
+const char* JSON_FIELD_HEATING = "heating";
+
+const char* OP_GET_CONFIG = "get_config";
+const char* OP_GET_TELEMETRY = "get_telemetry";
+const char* OP_SET_CONFIG = "set_config";
+
 struct SNetworkConfig {
   const char* wifiSsid;
   const char* wifiPassword;
@@ -23,7 +31,8 @@ struct SNetworkConfig {
   const char* mqttPassword;
   const char* mqttClientId;
   const char* mqttTopicIn;
-  const char* mqttTopicOut;
+  const char* mqttTopicOutConfig;
+  const char* mqttTopicOutTelem;
   const char* mqttTopicStatusIn;
   const char* mqttTopicStatusOut;
 };
@@ -80,8 +89,15 @@ private:
     mMqttClient.publish(mNetworkConfig.mqttTopicStatusOut, &msg, 1);
   }
 
-  void msgSend(const char* msg) {
-    mMqttClient.publish(mNetworkConfig.mqttTopicOut, msg);
+  void msgSend(const char* msg, const char* topic) {
+    mMqttClient.publish(topic, msg);
+  }
+
+  void msgSend(JsonObject& root, const char* topic) {
+    size_t len = root.measureLength() + 1;
+    char buffer[len];
+    root.printTo(buffer, len);
+    msgSend(buffer, topic);
   }
 
   bool mqttConnect() {
@@ -110,12 +126,19 @@ private:
     StaticJsonBuffer<200> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
 
-    root["temperature"] = gTemperature.getValue();
+    root[JSON_FIELD_TEMP] = gTemperature.getValue();
+    root[JSON_FIELD_HEATING] = gHeater.isEnabled();
 
-    size_t len = root.measureLength() + 1;
-    char buffer[len];
-    root.printTo(buffer, len);
-    msgSend(buffer);
+    msgSend(root, mNetworkConfig.mqttTopicOutConfig);
+  }
+
+  void configSend() {
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.createObject();
+
+    gBoilerConfig.toJson(root);
+
+    msgSend(root, mNetworkConfig.mqttTopicOutTelem);
   }
 
   void onMqttMsgReceived(char* topic, byte* payload, unsigned int len) {
@@ -134,7 +157,28 @@ private:
     }
     // Control request
     else if (!strcmp(topic, mNetworkConfig.mqttTopicIn)) {
-      // TODO
+      handleJsonRequest((char*)payload);
+    }
+  }
+
+  // json arg should be null-terminated
+  void handleJsonRequest(char* json) {
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject(json);
+
+    JsonVariant op = root[JSON_FIELD_OP];
+    if (op.success()) {
+      const char* opStr = op.as<const char*>();
+      if (!strcmp(opStr, OP_GET_CONFIG)) {
+        configSend();
+      }
+      else if (!strcmp(opStr, OP_GET_TELEMETRY)) {
+        telemetrySend();
+      }
+      else if (!strcmp(opStr, OP_SET_CONFIG)) {
+        gBoilerConfig.fromJson(root);
+        configSend();
+      }
     }
   }
 

@@ -21,11 +21,12 @@
  * 0.6 - Wifi and MQTT initial code added
  * 0.7 - Temp offset introduced. pin remap
  * 0.8 - Pause function added. Short and long clicks handling added. Heating dot and pause icon added
+ * 0.9 - Remote setup added. MQTT out topics reworked a little bit
  */
 
 #define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
 #define DEVICE_HW_VERSION "1.0"
-#define DEVICE_SW_VERSION "0.8"
+#define DEVICE_SW_VERSION "0.9"
 
 // ***** CONFIG *****
 // Hardware configuration
@@ -57,7 +58,8 @@ const char* MQTT_USER_NAME = "MQTT_USER_NAME";
 const char* MQTT_USER_PASSWORD = "MQTT_USER_PASSWORD";
 const char* MQTT_CLIENT_ID = "boiler";
 const char* MQTT_TOPIC_IN = "boiler/data/in";
-const char* MQTT_TOPIC_OUT = "boiler/data/out";
+const char* MQTT_TOPIC_OUT_CONFIG = "boiler/data/out/config";
+const char* MQTT_TOPIC_OUT_TELEM = "boiler/data/out/telem";
 const char* MQTT_TOPIC_STATUS_IN = "boiler/status/in";
 const char* MQTT_TOPIC_STATUS_OUT = "boiler/status/out";
 // ***** END OF CONFIG *****
@@ -89,7 +91,8 @@ CNetwork gNetwork({
   MQTT_USER_PASSWORD,
   MQTT_CLIENT_ID,
   MQTT_TOPIC_IN,
-  MQTT_TOPIC_OUT,
+  MQTT_TOPIC_OUT_CONFIG,
+  MQTT_TOPIC_OUT_TELEM,
   MQTT_TOPIC_STATUS_IN,
   MQTT_TOPIC_STATUS_OUT
 });

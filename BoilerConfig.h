@@ -2,6 +2,7 @@
 #define _BOILER_CONFIG_H
 
 #include "EEPROM.h"
+#include <ArduinoJson.h>
 
 #define CONFIG_VALID_MAGIC 0x92
 #define CONFIG_INITIAL_POWER_MODE EPowerMode::POWER_HIGH
@@ -9,6 +10,12 @@
 #define CONFIG_INITIAL_TEMP_HOLD_TOL 2.0f
 #define CONFIG_INITIAL_TEMP_OFFSET 12.0f
 #define CONFIG_INITIAL_PAUSED false
+
+#define JSON_FIELD_POWER_MODE "power_mode"
+#define JSON_FIELD_TARGET_TEMP "target_temp"
+#define JSON_FIELD_TEMP_HOLD_TOL "temp_hold_tol"
+#define JSON_FIELD_TEMP_OFFSET "temp_offset"
+#define JSON_FIELD_IS_PAUSED "is_paused"
 
 typedef enum {
   POWER_LOW,
@@ -43,6 +50,27 @@ public:
     EEPROM.commit();
   }
 
+  void toJson(JsonObject& root) {
+    root[JSON_FIELD_POWER_MODE] = mPowerMode;
+    root[JSON_FIELD_TARGET_TEMP] = mTargetTemp;
+    root[JSON_FIELD_TEMP_HOLD_TOL] = mTempHoldTolerance;
+    root[JSON_FIELD_TEMP_OFFSET] = mTempOffset;
+    root[JSON_FIELD_IS_PAUSED] = mIsPaused;
+  }
+
+  void fromJson(JsonObject& root) {
+    JsonVariant val = root[JSON_FIELD_POWER_MODE];
+    if (val.success()) setPowerMode(val.as<uint8_t>());
+    val = root[JSON_FIELD_TARGET_TEMP];
+    if (val.success()) setTargetTemp(val.as<int8_t>());
+    val = root[JSON_FIELD_TEMP_HOLD_TOL];
+    if (val.success()) setTempHoldTolerance(val.as<float>());
+    val = root[JSON_FIELD_TEMP_OFFSET];
+    if (val.success()) setTempOffset(val.as<float>());
+    val = root[JSON_FIELD_IS_PAUSED];
+    if (val.success()) setPaused(val.as<bool>());
+  }
+
   bool isFactoryDefault() {
     bool ret = mIsDefault;
     if (ret) {
@@ -60,29 +88,47 @@ public:
     mPowerMode = mode;
     commitAll();
   }
+  bool setPowerMode(uint8_t mode) {
+    if (mode >= POWER_LOW && mode <= POWER_HIGH) {
+      setPowerMode((EPowerMode)mode);
+      return true;
+    }
+    return false;
+  }
 
   int8_t getTargetTemp() {
     return mTargetTemp;
   }
-  void setTargetTemp(int8_t temp) {
-    mTargetTemp = temp;
-    commitAll();
+  bool setTargetTemp(int8_t temp) {
+    if (temp >= 30 && temp <= 90) {
+      mTargetTemp = temp;
+      commitAll();
+      return true;
+    }
+    return false;
   }
 
   float getTempHoldTolerance() {
     return mTempHoldTolerance;
   }
-  void setTempHoldTolerance(float tolerance) {
-    mTempHoldTolerance = tolerance;
-    commitAll();
+  bool setTempHoldTolerance(float tolerance) {
+    if (tolerance >= -10 && tolerance <= 10) {
+      mTempHoldTolerance = tolerance;
+      commitAll();
+      return true;
+    }
+    return false;
   }
 
   float getTempOffset() {
     return mTempOffset;
   }
   void setTempOffset(float offset) {
+    // Disabled for security reasons
+#if 0
     mTempOffset = offset;
     commitAll();
+#endif
   }
 
   bool isPaused() {
