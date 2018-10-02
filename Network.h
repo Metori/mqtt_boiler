@@ -1,13 +1,15 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef _NETWORK_H
+#define _NETWORK_H
 
+#include "BoilerConfig.h"
+#include "Temperature.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
 #define WIFI_CONNECT_WAIT_MS 10000
 #define MQTT_RECONNECT_INTERVAL_MS 5000
-#define MQTT_DATA_SEND_INTERVAL_MS 10000
+#define MQTT_DATA_SEND_INTERVAL_MS 30000
 
 // High level status protocol messages
 const uint8_t MSG_STATUS_OUT_READY = 0x52; //'R'
@@ -84,6 +86,25 @@ public:
     return WiFi.status() == WL_CONNECTED && mMqttClient.connected();
   }
 
+  void telemetrySend() {
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.createObject();
+
+    root[JSON_FIELD_TEMP] = gTemperature.getValue();
+    root[JSON_FIELD_HEATING] = gHeater.isEnabled();
+
+    msgSend(root, mNetworkConfig.mqttTopicOutTelem);
+  }
+
+  void configSend() {
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.createObject();
+
+    gBoilerConfig.toJson(root);
+
+    msgSend(root, mNetworkConfig.mqttTopicOutConfig);
+  }
+
 private:
   void msgStatusSend(uint8_t msg) {
     mMqttClient.publish(mNetworkConfig.mqttTopicStatusOut, &msg, 1);
@@ -120,25 +141,6 @@ private:
     WiFi.disconnect();
     WiFi.mode(WIFI_STA);
     WiFi.begin(mNetworkConfig.wifiSsid, mNetworkConfig.wifiPassword);
-  }
-
-  void telemetrySend() {
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
-
-    root[JSON_FIELD_TEMP] = gTemperature.getValue();
-    root[JSON_FIELD_HEATING] = gHeater.isEnabled();
-
-    msgSend(root, mNetworkConfig.mqttTopicOutConfig);
-  }
-
-  void configSend() {
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
-
-    gBoilerConfig.toJson(root);
-
-    msgSend(root, mNetworkConfig.mqttTopicOutTelem);
   }
 
   void onMqttMsgReceived(char* topic, byte* payload, unsigned int len) {
