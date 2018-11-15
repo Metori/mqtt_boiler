@@ -51,7 +51,7 @@ public:
   }
 
   void toJson(JsonObject& root) {
-    root[JSON_FIELD_POWER_MODE] = mPowerMode;
+    root[JSON_FIELD_POWER_MODE] = (uint8_t)mPowerMode;
     root[JSON_FIELD_TARGET_TEMP] = mTargetTemp;
     root[JSON_FIELD_TEMP_HOLD_TOL] = mTempHoldTolerance;
     root[JSON_FIELD_TEMP_OFFSET] = mTempOffset;
