@@ -86,16 +86,14 @@ public:
   virtual CScreen* transition() = 0;
   virtual void draw() override;
 
-  uint8_t getSelected() {
-    return mSelected;
-  }
+protected:
+  uint8_t mSelected;
 
 private:
   void inc();
   void dec();
 
   const std::vector<const __FlashStringHelper*> mTextOptions;
-  uint8_t mSelected;
 };
 
 class CErrorScreen : public CScreen {

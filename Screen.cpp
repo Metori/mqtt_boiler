@@ -36,8 +36,6 @@ CScreen* CScreen::transition() {
     ret = this;
   }
 
-  //TODO: check if we need to power off by long press
-
   return ret;
 }
 
@@ -47,8 +45,10 @@ CScreen* CMainScreen::transition() {
   CScreen* ret = CScreen::transition();
   if (ret == oldThis) {
     if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
+      uint8_t sel = mSelectedItem;
       delete this;
-      switch (mSelectedItem) {
+
+      switch (sel) {
         case 0:
           ret = new CCurrentTempScreen();
           break;
@@ -304,7 +304,7 @@ CScreen* CPowerModeSelectScreen::transition() {
   CScreen* ret = CScreen::transition();
   if (ret == oldThis) {
     if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
-      EPowerMode mode = (EPowerMode)getSelected();
+      EPowerMode mode = (EPowerMode)mSelected;
 
       gBoilerConfig.setPowerMode(mode);
       if (gHeater.isEnabled()) gHeater.updateRelays();
