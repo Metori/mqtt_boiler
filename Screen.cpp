@@ -59,7 +59,7 @@ CScreen* CMainScreen::transition() {
           ret = new CPowerModeSelectScreen();
           break;
         default:
-          //TODO
+          ret = new CMoreSelectScreen();
           break;
       }
     }
@@ -341,4 +341,41 @@ void CMessageScreen::draw() {
   printCentered(mMsg, 63, 38);
 
   gDisp.display();
+}
+
+// ***** MORE SELECT SCREEN *****
+CMoreSelectScreen::CMoreSelectScreen()
+  : COptionChooseScreen({FPSTR(STR_MORE_DEVICE_STATUS),
+                         FPSTR(STR_MORE_NETWORK_STATUS),
+                         FPSTR(STR_MORE_FW_VERSION),
+                         FPSTR(STR_MORE_BACK)}, 0) {
+
+}
+
+CScreen* CMoreSelectScreen::transition() {
+  CScreen* oldThis = this;
+  CScreen* ret = CScreen::transition();
+  if (ret == oldThis) {
+    if (gControls.getEvent() == EControlEvent::POT_SW_PRESS) {
+      uint8_t sel = mSelected;
+      delete this;
+
+      switch (sel) {
+        case 0: //Device status
+          //TODO
+          break;
+        case 1: //Network status
+          //TODO
+          break;
+        case 2: //FW version
+          //TODO
+          break;
+        case 3: //Back
+          ret = new CMainScreen(3);
+          break;
+      }
+    }
+  }
+
+  return ret;
 }

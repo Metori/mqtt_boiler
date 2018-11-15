@@ -218,4 +218,14 @@ public:
   virtual CScreen* transition() override;
 };
 
+class CMoreSelectScreen : public COptionChooseScreen {
+public:
+  CMoreSelectScreen();
+  virtual ~CMoreSelectScreen() override {
+
+  }
+
+  virtual CScreen* transition() override;
+};
+
 #endif // _SCREEN_H
