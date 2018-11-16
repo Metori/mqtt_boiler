@@ -49,6 +49,7 @@
 #define TEMP_VALID_MAX_C 90.0f
 
 #define SCREEN_CONNECTED_TIMEOUT_MS 10000
+#define DISPLAY_MESSAGE_TIMEOUT_MS 10000
 
 const char* WIFI_SSID = "WIFI_SSID";
 const char* WIFI_PASSWORD = "WIFI_PASSWORD";
@@ -110,6 +111,14 @@ void updateDisplay() {
   curScreenPtr->draw();
 }
 
+void onDispMsgReceived(const char* caption, const char* text) {
+  delete curScreenPtr;
+  curScreenPtr = new CMessageScreen(caption,
+                                    text,
+                                    new CCurrentTempScreen(),
+                                    DISPLAY_MESSAGE_TIMEOUT_MS);
+}
+
 void setup(void) {
   //Serial.begin(9600);
   //Serial.println(DEVICE_NAME " HW Ver. " DEVICE_HW_VERSION " SW Ver. " DEVICE_SW_VERSION);
@@ -135,6 +144,8 @@ void setup(void) {
                                       FPSTR(STR_CONNECTING_MSG_TEXT),
                                       new CCurrentTempScreen());
   }
+  
+  gNetwork.setDispMsgCallback(onDispMsgReceived);
 }
 
 void loop(void) {

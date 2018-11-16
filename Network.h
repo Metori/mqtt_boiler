@@ -19,10 +19,13 @@ const uint8_t MSG_STATUS_IN_PING = 0x50; //P
 const char* JSON_FIELD_OP = "op";
 const char* JSON_FIELD_TEMP = "temperature";
 const char* JSON_FIELD_HEATING = "heating";
+const char* JSON_FIELD_CAPTION = "caption";
+const char* JSON_FIELD_TEXT = "text";
 
 const char* OP_GET_CONFIG = "get_config";
 const char* OP_GET_TELEMETRY = "get_telemetry";
 const char* OP_SET_CONFIG = "set_config";
+const char* OP_DISP_MSG = "disp_msg";
 
 struct SNetworkConfig {
   const char* wifiSsid;
@@ -104,6 +107,10 @@ public:
 
     msgSend(root, mNetworkConfig.mqttTopicOutConfig);
   }
+  
+  void setDispMsgCallback(std::function<void(const char*, const char*)> callback) {
+    mDispMsgCallback = callback;
+  }
 
 private:
   void msgStatusSend(uint8_t msg) {
@@ -181,7 +188,18 @@ private:
         gBoilerConfig.fromJson(root);
         configSend();
       }
+      else if (!strcmp(opStr, OP_DISP_MSG)) {
+        handleDispMsg(root);
+      }
     }
+  }
+  
+  void handleDispMsg(JsonObject& root) {
+    JsonVariant caption = root[JSON_FIELD_CAPTION];
+    JsonVariant text = root[JSON_FIELD_TEXT];
+    if (!mDispMsgCallback || !caption.success() || !text.success()) return;
+
+    mDispMsgCallback(caption.as<const char*>(), text.as<const char*>());
   }
 
   SNetworkConfig mNetworkConfig;
@@ -192,6 +210,8 @@ private:
   unsigned long mWifiLastConnectTryTime = 0;
   unsigned long mMqttLastConnectFailTime = 0;
   unsigned long mTelemLastSendTime = 0;
+  
+  std::function<void(const char*, const char*)> mDispMsgCallback = nullptr;
 };
 
 extern CNetwork gNetwork;

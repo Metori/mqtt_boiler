@@ -7,14 +7,16 @@
 
 void printCentered(const char* str, uint16_t x, uint16_t y, uint8_t textSize) {
   int16_t w = strlen(str) * 6 * textSize;
-  gDisp.setCursor(x - w / 2, y);
+  if (w > 127) gDisp.setCursor(0, y);
+  else gDisp.setCursor(x - w / 2, y);
   gDisp.setTextSize(textSize);
   gDisp.print(str);
 }
 
 void printCentered(const __FlashStringHelper* str, uint16_t x, uint16_t y, uint8_t textSize) {
   int16_t w = strlen_P((const char*)str) * 6 * textSize;
-  gDisp.setCursor(x - w / 2, y);
+  if (w > 127) gDisp.setCursor(0, y);
+  else gDisp.setCursor(x - w / 2, y);
   gDisp.setTextSize(textSize);
   gDisp.print(str);
 }
@@ -336,9 +338,15 @@ void CErrorScreen::draw() {
 void CMessageScreen::draw() {
   gDisp.clearDisplay();
   gDisp.setTextColor(WHITE);
-
-  printCentered(mCaption, 63, 5, 4);
-  printCentered(mMsg, 63, 38);
+  
+  if (mFlashString) {
+    printCentered((const __FlashStringHelper*)mCaption, 63, 5, 4);
+    printCentered((const __FlashStringHelper*)mMsg, 63, 38);
+  }
+  else {
+    printCentered(mCaption, 63, 5, 4);
+    printCentered(mMsg, 63, 38);
+  }
 
   gDisp.display();
 }

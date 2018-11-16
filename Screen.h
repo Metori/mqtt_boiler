@@ -142,8 +142,19 @@ public:
                  CScreen* nextScreen,
                  unsigned long timeout = 0)
     : CConfirmScreen(nextScreen, timeout),
+      mCaption((const char*)caption),
+      mMsg((const char*)msg),
+      mFlashString(true) {
+
+  }
+  CMessageScreen(const char* caption,
+                 const char* msg,
+                 CScreen* nextScreen,
+                 unsigned long timeout = 0)
+    : CConfirmScreen(nextScreen, timeout),
       mCaption(caption),
-      mMsg(msg) {
+      mMsg(msg),
+      mFlashString(false) {
 
   }
   virtual ~CMessageScreen() override {
@@ -153,8 +164,9 @@ public:
   virtual void draw() override;
 
 private:
-  const __FlashStringHelper* mCaption;
-  const __FlashStringHelper* mMsg;
+  const char* mCaption;
+  const char* mMsg;
+  bool mFlashString;
 };
 
 class CMainScreen : public CScreen {
