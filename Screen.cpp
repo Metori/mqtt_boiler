@@ -371,12 +371,17 @@ CScreen* CMoreSelectScreen::transition() {
       switch (sel) {
         case 0: //Device status
           //TODO
+          ret = new CMainScreen(3);
           break;
         case 1: //Network status
           //TODO
+          ret = new CMainScreen(3);
           break;
         case 2: //FW version
           //TODO
+          char text[200];
+          sprintf(text, "%s\n%s\nHW: %s\nSW: %s\n\n    ;-)", DEVICE_NAME, DEVICE_AUTHOR, DEVICE_HW_VERSION, DEVICE_SW_VERSION);
+          ret = new CTextScreen(text, new CMainScreen(3));
           break;
         case 3: //Back
           ret = new CMainScreen(3);
@@ -386,4 +391,16 @@ CScreen* CMoreSelectScreen::transition() {
   }
 
   return ret;
+}
+
+// ***** TEXT SCREEN *****
+void CTextScreen::draw() {
+  gDisp.clearDisplay();
+  gDisp.setTextColor(WHITE);
+
+  gDisp.setCursor(0, 5);
+  gDisp.setTextSize(1);
+  gDisp.print(mText);
+
+  gDisp.display();
 }

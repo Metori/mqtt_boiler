@@ -22,11 +22,8 @@
  * 0.7 - Temp offset introduced. pin remap
  * 0.8 - Pause function added. Short and long clicks handling added. Heating dot and pause icon added
  * 0.9 - Remote setup added. MQTT out topics reworked a little bit
+ * 0.99 - "More" menu populated. Fixed conversion of power mode value to JSON. Added option to display custom message received in JSON
  */
-
-#define DEVICE_NAME "MQTT Boiler controller by Artem Pinchuk"
-#define DEVICE_HW_VERSION "1.0"
-#define DEVICE_SW_VERSION "0.9"
 
 // ***** CONFIG *****
 // Hardware configuration

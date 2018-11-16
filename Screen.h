@@ -1,6 +1,11 @@
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
+#define DEVICE_NAME "MQTT Boiler"
+#define DEVICE_AUTHOR "by Artem Pinchuk"
+#define DEVICE_HW_VERSION "1.0"
+#define DEVICE_SW_VERSION "0.99"
+
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -238,6 +243,25 @@ public:
   }
 
   virtual CScreen* transition() override;
+};
+
+class CTextScreen : public CConfirmScreen {
+public:
+  CTextScreen(char* text,
+              CScreen* nextScreen,
+              unsigned long timeout = BACK_TO_DEFAULT_SCREEN_TIMEOUT_MS)
+    : CConfirmScreen(nextScreen, timeout) {
+    mText = new char[strlen(text)];
+    strcpy(mText, text);
+  }
+  virtual ~CTextScreen() override {
+    delete mText;
+  }
+
+  virtual void draw() override;
+
+private:
+  char* mText;
 };
 
 #endif // _SCREEN_H
