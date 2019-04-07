@@ -354,7 +354,7 @@ void CMessageScreen::draw() {
 // ***** MORE SELECT SCREEN *****
 CMoreSelectScreen::CMoreSelectScreen()
   : COptionChooseScreen({FPSTR(STR_MORE_DEVICE_STATUS),
-                         FPSTR(STR_MORE_NETWORK_STATUS),
+                         FPSTR(STR_MORE_STAT),
                          FPSTR(STR_MORE_FW_VERSION),
                          FPSTR(STR_MORE_BACK)}, 0) {
 
@@ -373,16 +373,19 @@ CScreen* CMoreSelectScreen::transition() {
           //TODO
           ret = new CMainScreen(3);
           break;
-        case 1: //Network status
-          //TODO
-          ret = new CMainScreen(3);
+        case 1: { //Statistics
+          char text[200];
+          sprintf(text, "RELAY LO: %u\nRELAY HI: %u", gBoilerConfig.getRelayLoStat(), gBoilerConfig.getRelayHiStat());
+          ret = new CTextScreen(text, new CMainScreen(3));
           break;
-        case 2: //FW version
+        }
+        case 2: { //FW version
           //TODO
           char text[200];
           sprintf(text, "%s\n%s\nHW: %s\nSW: %s\n\n    ;-)", DEVICE_NAME, DEVICE_AUTHOR, DEVICE_HW_VERSION, DEVICE_SW_VERSION);
           ret = new CTextScreen(text, new CMainScreen(3));
           break;
+        }
         case 3: //Back
           ret = new CMainScreen(3);
           break;

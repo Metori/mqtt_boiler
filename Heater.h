@@ -33,24 +33,38 @@ public:
   }
 
   void updateRelays() {
+    int oldPinLoState = digitalRead(mPinLo);
+    int oldPinHiState = digitalRead(mPinHi);
+    int newPinLoState;
+    int newPinHiState;
+
     if (mPowerOn) {
       switch (gBoilerConfig.getPowerMode()) {
         case EPowerMode::POWER_LOW:
-          digitalWrite(mPinLo, RELAY_ON);
-          digitalWrite(mPinHi, RELAY_OFF);
+          newPinLoState = RELAY_ON;
+          newPinHiState = RELAY_OFF;
           break;
         case EPowerMode::POWER_MEDIUM:
-          digitalWrite(mPinLo, RELAY_OFF);
-          digitalWrite(mPinHi, RELAY_ON);
+          newPinLoState = RELAY_OFF;
+          newPinHiState = RELAY_ON;
           break;
         default:
-          digitalWrite(mPinLo, RELAY_ON);
-          digitalWrite(mPinHi, RELAY_ON);
+          newPinLoState = RELAY_ON;
+          newPinHiState = RELAY_ON;
           break;
       }
     } else {
-      digitalWrite(mPinLo, RELAY_OFF);
-      digitalWrite(mPinHi, RELAY_OFF);
+      newPinLoState = RELAY_OFF;
+      newPinHiState = RELAY_OFF;
+    }
+
+    if (newPinLoState != oldPinLoState) {
+      digitalWrite(mPinLo, newPinLoState);
+      gBoilerConfig.incRelayLoStat();
+    }
+    if (newPinHiState != oldPinHiState) {
+      digitalWrite(mPinHi, newPinHiState);
+      gBoilerConfig.incRelayHiStat();
     }
   }
 

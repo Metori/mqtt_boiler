@@ -4,7 +4,7 @@
 #define DEVICE_NAME "MQTT Boiler"
 #define DEVICE_AUTHOR "by Artem Pinchuk"
 #define DEVICE_HW_VERSION "1.0"
-#define DEVICE_SW_VERSION "0.99"
+#define DEVICE_SW_VERSION "1.0"
 
 #include <SPI.h>
 #include <Wire.h>

@@ -23,6 +23,7 @@
  * 0.8 - Pause function added. Short and long clicks handling added. Heating dot and pause icon added
  * 0.9 - Remote setup added. MQTT out topics reworked a little bit
  * 0.99 - "More" menu populated. Fixed conversion of power mode value to JSON. Added option to display custom message received in JSON
+ * 1.0 - Added switch counter for both relays. This software tested on real boiler for 7 months and considered stable.
  */
 
 // ***** CONFIG *****
